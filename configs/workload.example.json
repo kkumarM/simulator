@@ -1,9 +1,9 @@
 {
   "pods": [
-    {"name": "trainer-0", "namespace": "ml", "resources": {"cpuMilli": 4000, "memoryMB": 8192, "gpus": 1}},
-    {"name": "trainer-1", "namespace": "ml", "resources": {"cpuMilli": 4000, "memoryMB": 8192, "gpus": 1}},
-    {"name": "encoder", "namespace": "video", "resources": {"cpuMilli": 2000, "memoryMB": 4096, "gpus": 0}},
-    {"name": "api", "namespace": "default", "resources": {"cpuMilli": 500, "memoryMB": 512, "gpus": 0}},
-    {"name": "batch", "namespace": "jobs", "resources": {"cpuMilli": 6000, "memoryMB": 4096, "gpus": 0}}
+    {"name": "trainer-0", "namespace": "ml", "priority": 100, "resources": {"cpuMilli": 4000, "memoryMB": 8192, "gpus": 1}},
+    {"name": "trainer-1", "namespace": "ml", "priority": 90, "resources": {"cpuMilli": 4000, "memoryMB": 8192, "gpus": 1}},
+    {"name": "encoder", "namespace": "video", "priority": 50, "resources": {"cpuMilli": 2000, "memoryMB": 4096, "gpus": 0}},
+    {"name": "api", "namespace": "default", "priority": 10, "resources": {"cpuMilli": 500, "memoryMB": 512, "gpus": 0}},
+    {"name": "batch", "namespace": "jobs", "priority": 1, "resources": {"cpuMilli": 6000, "memoryMB": 4096, "gpus": 0}}
   ]
 }

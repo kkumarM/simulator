@@ -15,6 +15,7 @@ func main() {
 	clusterPath := flag.String("cluster", "configs/cluster.example.json", "path to cluster JSON definition")
 	workloadPath := flag.String("workload", "configs/workload.example.json", "path to workload JSON definition")
 	showState := flag.Bool("state", false, "print final node utilization after scheduling")
+	strategy := flag.String("strategy", "binpack", "scheduling strategy: binpack or spread")
 	flag.Parse()
 
 	c, err := cluster.Load(*clusterPath)
@@ -27,7 +28,12 @@ func main() {
 		exitErr(err)
 	}
 
-	decisions, final := scheduler.Run(c, pods)
+	mode := scheduler.Strategy(*strategy)
+	if mode != scheduler.Binpack && mode != scheduler.Spread {
+		exitErr(fmt.Errorf("unknown strategy %q (use binpack or spread)", *strategy))
+	}
+
+	decisions, final := scheduler.Run(c, pods, mode)
 	printDecisions(decisions)
 
 	if *showState {

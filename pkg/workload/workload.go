@@ -12,6 +12,7 @@ import (
 type Pod struct {
 	Name      string          `json:"name"`
 	Namespace string          `json:"namespace"`
+	Priority  int             `json:"priority,omitempty"`
 	Requests  cluster.Resource `json:"resources"`
 }
 

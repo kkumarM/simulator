@@ -20,11 +20,13 @@ go build ./cmd/simulator
 ./simulator \
   -cluster configs/cluster.example.json \
   -workload configs/workload.example.json \
+  -strategy binpack \
   -state
 ```
 Flags:
 - `-cluster` path to a cluster JSON file
 - `-workload` path to workload JSON file
+- `-strategy` `binpack` (default) to concentrate pods, or `spread` to balance usage
 - `-state` print final node utilization after scheduling
 
 ## Input formats
@@ -41,12 +43,13 @@ Workload (`configs/workload.example.json`):
 ```json
 {
   "pods": [
-    {"name": "trainer-0", "namespace": "ml", "resources": {"cpuMilli": 4000, "memoryMB": 8192, "gpus": 1}}
+    {"name": "trainer-0", "namespace": "ml", "priority": 100, "resources": {"cpuMilli": 4000, "memoryMB": 8192, "gpus": 1}}
   ]
 }
 ```
 
 ## Notes
 - The scheduler is intentionally simple: GPU pods must land on GPU-capable nodes; CPU-only pods prefer nodes without GPUs to preserve accelerators.
+- Pod `priority` (higher first) is supported; pods with the same priority keep a stable alphabetical order.
 - All logic uses only the Go standard library so it can run completely offline.
 - Extend `pkg/scheduler` to experiment with spreading, binpacking, or custom constraints.
