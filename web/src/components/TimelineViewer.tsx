@@ -23,6 +23,7 @@ export default function TimelineViewer({ runId, backendUrl }: Props) {
   const [playing, setPlaying] = useState(false)
   const [speed, setSpeed] = useState(1)
   const [selected, setSelected] = useState<Span | null>(null)
+  const [showHelp, setShowHelp] = useState(false)
   const rafRef = useRef<number>()
 
   const endTime = useMemo(() => spans.reduce((m, s) => Math.max(m, s.endMs), 0), [spans])
@@ -81,7 +82,27 @@ export default function TimelineViewer({ runId, backendUrl }: Props) {
         byLane[s.lane] = (byLane[s.lane] || 0) + 1
       }
     })
-    return { total, byLane }
+    const queued = byLane['queue'] || 0
+    const gpu = byLane['gpu'] || 0
+    const transfer = (byLane['h2d'] || 0) + (byLane['d2h'] || 0) + (byLane['mem'] || 0)
+    const cpu = byLane['cpu'] || 0
+    return { total, byLane, queued, gpu, transfer, cpu }
+  }, [spans, current])
+
+  const gpuSaturated = useMemo(() => {
+    if (!spans.length) return false
+    const window = 500 // ms
+    const start = Math.max(0, current - window)
+    const end = current
+    const gpuSpans = spans.filter((s) => s.lane === 'gpu')
+    if (!gpuSpans.length || end <= start) return false
+    let covered = 0
+    gpuSpans.forEach((s) => {
+      const overlap = Math.min(end, s.endMs) - Math.max(start, s.startMs)
+      if (overlap > 0) covered += overlap
+    })
+    const utilization = covered / (end - start)
+    return utilization >= 0.8
   }, [spans, current])
 
   if (!runId) return null
@@ -98,7 +119,10 @@ export default function TimelineViewer({ runId, backendUrl }: Props) {
         </select>
         <div className="flex items-center gap-2 text-xs text-slate-300">
           <span>Active: {active.total}</span>
-          {Object.entries(active.byLane).map(([k, v]) => <span key={k}>{k}:{v}</span>)}
+          <span>Queued: {active.queued}</span>
+          <span>GPU: {active.gpu}</span>
+          <span>Transfer: {active.transfer}</span>
+          <span>CPU: {active.cpu}</span>
         </div>
       </div>
       <div className="flex items-center gap-3 text-sm">
@@ -116,10 +140,14 @@ export default function TimelineViewer({ runId, backendUrl }: Props) {
             {Object.entries(lanes).map(([lane, list]) => (
               <LaneRow key={lane} label={lane.toUpperCase()} spans={list} zoom={zoom} current={current} onSelect={setSelected} selected={selected} />
             ))}
+            <GridOverlay end={endTime} zoom={zoom} />
+            {gpuSaturated && <div className="absolute top-2 right-2 text-xs bg-amber-500 text-slate-900 px-2 py-1 rounded">GPU saturated</div>}
+            {active.queued > 0 && <div className="absolute top-2 right-32 text-xs bg-indigo-400 text-slate-900 px-2 py-1 rounded">Queue forming</div>}
           </div>
           <Details span={selected} />
         </div>
       )}
+      <HelpPanel open={showHelp} toggle={() => setShowHelp((p) => !p)} />
     </div>
   )
 }
@@ -129,7 +157,7 @@ function LaneRow({ label, spans, zoom, current, onSelect, selected }: { label: s
   const width = Math.max(maxEnd * zoom + 200, 600)
   return (
     <div className="relative border-t border-slate-800" style={{ height: 40 }}>
-      <div className="sticky left-0 top-0 w-20 h-full flex items-center justify-center text-xs text-slate-400 bg-slate-900/80 border-r border-slate-800">{label}</div>
+      <div className="sticky left-0 top-0 w-20 h-full flex items-center justify-center text-xs text-slate-400 bg-slate-900/90 backdrop-blur border-r border-slate-800 z-10">{label}</div>
       <div className="absolute left-20 right-0 top-0 h-full" style={{ width }}>
         {spans.map((s, i) => {
           const left = s.startMs * zoom
@@ -140,7 +168,7 @@ function LaneRow({ label, spans, zoom, current, onSelect, selected }: { label: s
             <div
               key={i}
               className="absolute h-6 rounded text-[10px] px-1 overflow-hidden whitespace-nowrap cursor-pointer"
-              style={{ left, width: widthPx, top: 8, background: color, opacity: active ? 1 : 0.5, border: selected === s ? '2px solid white' : '1px solid rgba(0,0,0,0.3)' }}
+              style={{ left, width: widthPx, top: 8, background: color, opacity: active ? 1 : 0.35, border: selected === s ? '2px solid white' : '1px solid rgba(0,0,0,0.3)' }}
               title={`${s.name} (${s.lane}) ${s.durMs.toFixed(2)} ms`}
               onClick={() => onSelect(s)}
             >
@@ -191,6 +219,31 @@ function Details({ span }: { span: Span | null }) {
       {span.cat && <div>Cat: {span.cat}</div>}
       {span.tid !== undefined && <div>tid: {span.tid}</div>}
       {span.pid !== undefined && <div>pid: {span.pid}</div>}
+    </div>
+  )
+}
+
+function GridOverlay({ end, zoom }: { end: number, zoom: number }) {
+  const step = chooseStep(end)
+  const width = Math.max(end * zoom + 200, 600)
+  const bg = `repeating-linear-gradient(to right, rgba(255,255,255,0.05) 0, rgba(255,255,255,0.05) 1px, transparent 1px, transparent ${step * zoom}px)`
+  return <div className="pointer-events-none absolute inset-0" style={{ width, backgroundImage: bg }} />
+}
+
+function HelpPanel({ open, toggle }: { open: boolean, toggle: () => void }) {
+  return (
+    <div className="border border-slate-800 rounded bg-slate-900/70">
+      <button className="w-full text-left px-3 py-2 text-sm text-slate-200 flex justify-between" onClick={toggle}>
+        <span>How to read this timeline</span>
+        <span>{open ? '−' : '+'}</span>
+      </button>
+      {open && (
+        <div className="px-3 pb-3 text-xs text-slate-300 space-y-2">
+          <div>Lanes: QUEUE (waiting), CPU (pre/post), H2D/D2H (transfers), GPU (compute). Colored bars show when each stage ran.</div>
+          <div>Each bar = one span for a request stage. Overlap means stages ran in parallel (different requests or different resources).</div>
+          <div>Red time cursor shows current playback position. Active spans are bright; inactive are dimmed.</div>
+        </div>
+      )}
     </div>
   )
 }

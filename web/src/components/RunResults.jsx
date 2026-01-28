@@ -53,7 +53,7 @@ export default function RunResults({ scenario, run, loading, error, compareA, co
         <Card label="p90 latency (ms)" value={s.p90_ms?.toFixed(2)} />
         <Card label="p99 latency (ms)" value={s.p99_ms?.toFixed(2)} />
         <Card label="Avg queue (ms)" value={s.avg_queue_ms?.toFixed(2)} />
-        <Card label="GPU util (%)" value={s.gpu_util_percent?.toFixed(1)} />
+        <Card label="Compute Busy (%)" value={s.gpu_util_percent?.toFixed(1)} tooltip="Derived from throughput vs configured concurrency; approximate GPU busy time." />
       </div>
 
       {compSummary && (
@@ -114,9 +114,9 @@ export default function RunResults({ scenario, run, loading, error, compareA, co
   )
 }
 
-function Card({ label, value }) {
+function Card({ label, value, tooltip }) {
   return (
-    <div className="bg-slate-800/50 border border-slate-700 rounded p-3">
+    <div className="bg-slate-800/50 border border-slate-700 rounded p-3" title={tooltip}>
       <div className="text-slate-400 text-xs uppercase">{label}</div>
       <div className="text-lg font-semibold">{value ?? '—'}</div>
     </div>
