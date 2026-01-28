@@ -29,7 +29,7 @@ function Select({ label, options, value, onChange }) {
   return (
     <label className="text-xs text-slate-300 space-y-1">
       <span>{label}</span>
-      <select className="input" value={value || ''} onChange={(e) => onChange(e.target.value || null)}>
+      <select className="input bg-slate-900/60 text-slate-100 border-slate-700 focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-400/30" value={value || ''} onChange={(e) => onChange(e.target.value || null)}>
         <option value="">Choose…</option>
         {options.map((o) => (
           <option key={o.id} value={o.id}>{o.label}</option>

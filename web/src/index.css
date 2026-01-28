@@ -5,3 +5,7 @@
 :root {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
+
+input, select, textarea {
+  color-scheme: dark;
+}

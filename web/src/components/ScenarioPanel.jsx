@@ -104,7 +104,7 @@ export default function ScenarioPanel({
           <div className="flex gap-2 text-xs">
             <button className="px-3 py-1 rounded bg-slate-800 border border-slate-700" onClick={() => onReset?.()}>Reset</button>
             <button className="px-3 py-1 rounded bg-slate-800 border border-slate-700" onClick={() => onSave?.(scenario)}>Save</button>
-            <select className="input h-9 w-32" onChange={(e) => onLoad?.(e.target.value)} value="">
+            <select className="input h-9 w-32 bg-slate-900/60 text-slate-100 border-slate-700 focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-400/30" onChange={(e) => onLoad?.(e.target.value)} value="">
               <option value="">Load...</option>
               {savedList.map((s) => (
                 <option key={s.id} value={s.id}>{s.name}</option>
@@ -127,13 +127,13 @@ export default function ScenarioPanel({
             onToggle={() => setOpenSections((p) => ({ ...p, workload: !p.workload }))}
           >
             <div className="grid grid-cols-2 gap-3">
-              <Field label="Scenario Name"><input className="input h-10" value={scenario.name} onChange={(e) => updateScenario(['name'], e.target.value)} /></Field>
-              <Field label="Workload Name"><input className="input h-10" value={scenario.workload.name} onChange={(e) => updateScenario(['workload', 'name'], e.target.value)} /></Field>
-              <Field label="RPS" suffix="rps"><input type="number" className="input h-10" value={scenario.workload.rps} onChange={(e) => updateScenario(['workload', 'rps'], parseFloat(e.target.value))} /></Field>
-              <Field label="Duration" suffix="s"><input type="number" className="input h-10" value={scenario.workload.duration_s} onChange={(e) => updateScenario(['workload', 'duration_s'], parseFloat(e.target.value))} /></Field>
-              <Field label="Batch Size"><input type="number" className="input h-10" value={scenario.workload.batch_size} onChange={(e) => updateScenario(['workload', 'batch_size'], parseInt(e.target.value, 10))} /></Field>
-              <Field label="Concurrency" tooltip="Max in-flight compute slots"><input type="number" className="input h-10" value={scenario.target.concurrency} onChange={(e) => updateScenario(['target', 'concurrency'], parseInt(e.target.value, 10))} /></Field>
-              <Field label="Jitter" suffix="%"><input type="number" className="input h-10" value={scenario.workload.jitter_pct} onChange={(e) => updateScenario(['workload', 'jitter_pct'], parseFloat(e.target.value))} /></Field>
+              <Field label="Scenario Name"><input className="input h-10 bg-slate-900/60 text-slate-100 placeholder-slate-500 border-slate-700 focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-400/30" value={scenario.name} onChange={(e) => updateScenario(['name'], e.target.value)} /></Field>
+              <Field label="Workload Name"><input className="input h-10 bg-slate-900/60 text-slate-100 placeholder-slate-500 border-slate-700 focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-400/30" value={scenario.workload.name} onChange={(e) => updateScenario(['workload', 'name'], e.target.value)} /></Field>
+              <Field label="RPS" suffix="rps"><input type="number" className="input h-10 bg-slate-900/60 text-slate-100 placeholder-slate-500 border-slate-700 focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-400/30" value={scenario.workload.rps} onChange={(e) => updateScenario(['workload', 'rps'], parseFloat(e.target.value))} /></Field>
+              <Field label="Duration" suffix="s"><input type="number" className="input h-10 bg-slate-900/60 text-slate-100 placeholder-slate-500 border-slate-700 focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-400/30" value={scenario.workload.duration_s} onChange={(e) => updateScenario(['workload', 'duration_s'], parseFloat(e.target.value))} /></Field>
+              <Field label="Batch Size"><input type="number" className="input h-10 bg-slate-900/60 text-slate-100 placeholder-slate-500 border-slate-700 focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-400/30" value={scenario.workload.batch_size} onChange={(e) => updateScenario(['workload', 'batch_size'], parseInt(e.target.value, 10))} /></Field>
+              <Field label="Concurrency" tooltip="Max in-flight compute slots"><input type="number" className="input h-10 bg-slate-900/60 text-slate-100 placeholder-slate-500 border-slate-700 focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-400/30" value={scenario.target.concurrency} onChange={(e) => updateScenario(['target', 'concurrency'], parseInt(e.target.value, 10))} /></Field>
+              <Field label="Jitter" suffix="%"><input type="number" className="input h-10 bg-slate-900/60 text-slate-100 placeholder-slate-500 border-slate-700 focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-400/30" value={scenario.workload.jitter_pct} onChange={(e) => updateScenario(['workload', 'jitter_pct'], parseFloat(e.target.value))} /></Field>
             </div>
           </Accordion>
 
@@ -144,7 +144,7 @@ export default function ScenarioPanel({
           >
             <div className="space-y-3">
               <Field label="Profile">
-                <select className="input h-10" value={scenario.target.name} onChange={(e) => applyProfile(e.target.value)}>
+                <select className="input h-10 bg-slate-900/60 text-slate-100 border-slate-700 focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-400/30" value={scenario.target.name} onChange={(e) => applyProfile(e.target.value)}>
                   <option value="A10G">A10G</option>
                   <option value="L4">L4</option>
                   <option value="A100">A100</option>
@@ -156,7 +156,7 @@ export default function ScenarioPanel({
                 {['tflops', 'mem_gbps', 'h2d_gbps', 'd2h_gbps', 'ms_per_token'].map((k) => (
                   <Field key={k} label={labelFor(k)} tooltip={tooltipFor(k)}>
                     <input
-                      className="input h-10"
+                      className="input h-10 bg-slate-900/60 text-slate-100 placeholder-slate-500 border-slate-700 focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-400/30"
                       type="number"
                       value={scenario.target[k]}
                       disabled={scenario.target.name !== 'Custom'}

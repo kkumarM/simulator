@@ -47,7 +47,7 @@ export default function ScenarioDiffModal({ open, onClose, current, savedList, o
         </div>
         <div className="flex items-center gap-2 mb-3 text-sm">
           <span className="text-slate-300">Compare current with:</span>
-          <select className="input h-9" value={selected} onChange={(e) => setSelected(e.target.value)}>
+          <select className="input h-9 bg-slate-900/60 text-slate-100 border-slate-700 focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-400/30" value={selected} onChange={(e) => setSelected(e.target.value)}>
             <option value="">Choose saved scenario</option>
             {savedList.map((s) => (
               <option key={s.id} value={s.id}>{s.name} ({new Date(s.updated).toLocaleString()})</option>
