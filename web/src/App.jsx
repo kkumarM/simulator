@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import ScenarioForm from './components/ScenarioForm'
+import ScenarioPanel from './components/ScenarioPanel'
 import RunResults from './components/RunResults'
 import RunHistory from './components/RunHistory'
 import TimelineViewer from './components/TimelineViewer'
@@ -87,7 +87,7 @@ export default function App() {
       <main className="p-4 lg:p-6">
         <div className="grid gap-4 lg:grid-cols-[360px,1fr]">
           <section className="bg-slate-900/60 border border-slate-800 rounded-xl p-4 shadow h-fit">
-            <ScenarioForm onRun={handleRun} loading={loading} />
+            <ScenarioPanel onRun={handleRun} />
           </section>
 
           <section className="bg-slate-900/60 border border-slate-800 rounded-xl shadow relative">
