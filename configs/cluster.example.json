@@ -1,0 +1,8 @@
+{
+  "nodes": [
+    {"name": "gpu-a", "capacity": {"cpuMilli": 16000, "memoryMB": 65536, "gpus": 2}},
+    {"name": "gpu-b", "capacity": {"cpuMilli": 12000, "memoryMB": 32768, "gpus": 1}},
+    {"name": "compute-1", "capacity": {"cpuMilli": 8000, "memoryMB": 16384, "gpus": 0}},
+    {"name": "compute-2", "capacity": {"cpuMilli": 8000, "memoryMB": 16384, "gpus": 0}}
+  ]
+}
