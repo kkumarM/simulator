@@ -8,11 +8,13 @@ import Tabs from './components/Tabs'
 import ResultCards from './components/ResultCards'
 import RequestDetails from './components/RequestDetails'
 import StageAggregates from './components/StageAggregates'
+import { defaultScenario } from './components/ScenarioPanel'
+import { saveScenarioEntry, loadScenario, deleteScenario, loadIndex, loadLastScenario } from './utils/scenarioStore'
 
 const API = '' // proxied to 8080 via Vite config
 
 export default function App() {
-  const [scenario, setScenario] = useState(null)
+  const [scenario, setScenario] = useState(() => loadLastScenario())
   const [run, setRun] = useState(null)
   const [runs, setRuns] = useState(() => {
     const saved = typeof localStorage !== 'undefined' ? localStorage.getItem('sim_runs') : null
@@ -20,12 +22,20 @@ export default function App() {
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [toast, setToast] = useState('')
   const [compareIds, setCompareIds] = useState([])
   const [activeTab, setActiveTab] = useState(() => {
     const saved = typeof localStorage !== 'undefined' ? localStorage.getItem('active_tab') : null
     return saved || 'results'
   })
   const [timelineHeight, setTimelineHeight] = useState(false)
+  const [collapsed, setCollapsed] = useState(false)
+  const [panelWidth, setPanelWidth] = useState(() => {
+    const v = typeof localStorage !== 'undefined' ? localStorage.getItem('panel_width') : null
+    return v ? parseInt(v, 10) : 380
+  })
+  const [resizing, setResizing] = useState(false)
+  const [savedList, setSavedList] = useState(loadIndex())
   const runA = runs.find((r) => r.id === compareIds[0])
   const runB = runs.find((r) => r.id === compareIds[1])
 
@@ -36,6 +46,46 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('active_tab', activeTab)
   }, [activeTab])
+
+  // panel resize handlers
+  useEffect(() => {
+    if (!resizing) return
+    const onMove = (e) => {
+      const next = Math.min(520, Math.max(300, e.clientX - 24))
+      setPanelWidth(next)
+      localStorage.setItem('panel_width', String(next))
+    }
+    const onUp = () => setResizing(false)
+    window.addEventListener('mousemove', onMove)
+    window.addEventListener('mouseup', onUp)
+    return () => {
+      window.removeEventListener('mousemove', onMove)
+      window.removeEventListener('mouseup', onUp)
+    }
+  }, [resizing])
+
+  // keyboard shortcuts
+  useEffect(() => {
+    const handler = (e) => {
+      const tag = e.target?.tagName?.toLowerCase()
+      if (['input', 'textarea', 'select'].includes(tag)) return
+      const mod = e.metaKey || e.ctrlKey
+      if (mod && e.key === 'Enter') {
+        e.preventDefault()
+        handleRun(scenario)
+      } else if (mod && (e.key === 's' || e.key === 'S')) {
+        e.preventDefault()
+        handleSave(scenario)
+      } else if (mod && (e.key === 'r' || e.key === 'R')) {
+        e.preventDefault()
+        handleReset()
+      } else if (e.key === 'Escape') {
+        setCollapsed(true)
+      }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [scenario])
 
   const handleRun = async (sc) => {
     setError('')
@@ -74,6 +124,41 @@ export default function App() {
 
   const openTimeline = () => setActiveTab('timeline')
 
+  const handleSave = (sc) => {
+    try {
+      const { index } = saveScenarioEntry(sc)
+      setSavedList(index)
+      setToast('Scenario saved')
+      setTimeout(() => setToast(''), 1200)
+    } catch {
+      setToast('Save failed')
+    }
+  }
+
+  const handleLoad = (id) => {
+    if (!id) return
+    const sc = loadScenario(id)
+    if (sc) {
+      setScenario(sc)
+      setToast('Scenario loaded')
+      setTimeout(() => setToast(''), 1200)
+    }
+  }
+
+  const handleDelete = (id) => {
+    if (!id) return
+    if (!confirm('Delete saved scenario?')) return
+    const idx = deleteScenario(id)
+    setSavedList(idx)
+  }
+
+  const handleReset = () => setScenario(defaultScenario)
+
+  const startResize = (e) => {
+    e.preventDefault()
+    setResizing(true)
+  }
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
       <header className="border-b border-slate-800 px-6 py-4 flex items-center justify-between sticky top-0 z-20 bg-slate-950/90 backdrop-blur">
@@ -85,9 +170,26 @@ export default function App() {
       </header>
 
       <main className="p-4 lg:p-6">
-        <div className="grid gap-4 lg:grid-cols-[360px,1fr]">
-          <section className="bg-slate-900/60 border border-slate-800 rounded-xl p-4 shadow h-fit">
-            <ScenarioPanel onRun={handleRun} />
+        <div className="grid gap-4 lg:grid-cols-[auto,1fr]">
+          <section className="bg-slate-900/60 border border-slate-800 rounded-xl p-4 shadow h-fit relative" style={{ width: collapsed ? 56 : panelWidth }}>
+            <ScenarioPanel
+              scenario={scenario}
+              setScenario={setScenario}
+              onRun={handleRun}
+              onSave={handleSave}
+              onReset={handleReset}
+              savedList={savedList}
+              onLoad={handleLoad}
+              onDelete={handleDelete}
+              toast={toast}
+              collapsed={collapsed}
+              setCollapsed={setCollapsed}
+            />
+            <div
+              className="absolute top-0 right-0 h-full w-2 cursor-col-resize"
+              onMouseDown={startResize}
+              title="Drag to resize"
+            />
           </section>
 
           <section className="bg-slate-900/60 border border-slate-800 rounded-xl shadow relative">

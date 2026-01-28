@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import Field from './forms/Field'
 import PipelineEditor from './PipelineEditor'
 
-const defaultScenario = {
+export const defaultScenario = {
   name: 'Demo Scenario',
   workload: { name: 'demo', rps: 2, duration_s: 10, batch_size: 1, jitter_pct: 5 },
   target: {
@@ -30,24 +30,21 @@ const gpuProfiles = {
   H100: { tflops: 260, mem_gbps: 3000, ms_per_token: 0.07, h2d_gbps: 100, d2h_gbps: 100, concurrency: 6 },
 }
 
-export default function ScenarioPanel({ onRun }) {
-  const [collapsed, setCollapsed] = useState(false)
-  const [scenario, setScenario] = useState(defaultScenario)
+export default function ScenarioPanel({
+  scenario,
+  setScenario,
+  onRun,
+  onSave,
+  onReset,
+  savedList,
+  onLoad,
+  onDelete,
+  toast,
+  collapsed,
+  setCollapsed,
+}) {
   const [openSections, setOpenSections] = useState({ workload: true, target: true, pipeline: true })
   const [errors, setErrors] = useState('')
-
-  useEffect(() => {
-    const saved = localStorage.getItem('scenario')
-    if (saved) {
-      try {
-        setScenario(JSON.parse(saved))
-      } catch {}
-    }
-  }, [])
-
-  useEffect(() => {
-    localStorage.setItem('scenario', JSON.stringify(scenario))
-  }, [scenario])
 
   const updateScenario = (path, value) => {
     setScenario((prev) => {
@@ -93,6 +90,7 @@ export default function ScenarioPanel({ onRun }) {
 
   const setPipeline = (p) => setScenario((prev) => ({ ...prev, pipeline: p }))
 
+
   return (
     <div className={`space-y-3 ${collapsed ? 'w-14' : 'w-full'}`}>
       <div className="flex items-center justify-between">
@@ -104,7 +102,15 @@ export default function ScenarioPanel({ onRun }) {
         </div>
         {!collapsed && (
           <div className="flex gap-2 text-xs">
-            <button className="px-3 py-1 rounded bg-slate-800 border border-slate-700" onClick={reset}>Reset</button>
+            <button className="px-3 py-1 rounded bg-slate-800 border border-slate-700" onClick={() => onReset?.()}>Reset</button>
+            <button className="px-3 py-1 rounded bg-slate-800 border border-slate-700" onClick={() => onSave?.(scenario)}>Save</button>
+            <select className="input h-9 w-32" onChange={(e) => onLoad?.(e.target.value)} value="">
+              <option value="">Load...</option>
+              {savedList.map((s) => (
+                <option key={s.id} value={s.id}>{s.name}</option>
+              ))}
+            </select>
+            <button className="px-3 py-1 rounded bg-slate-800 border border-slate-700" onClick={() => onDelete?.(prompt('Delete which id?') || '')}>Delete</button>
           </div>
         )}
       </div>
@@ -113,6 +119,7 @@ export default function ScenarioPanel({ onRun }) {
         <>
           <button className="w-full h-11 rounded bg-emerald-500 text-slate-950 font-semibold" onClick={run}>Run Simulation</button>
           {errors && <div className="text-red-400 text-sm">{errors}</div>}
+          {toast && <div className="text-emerald-400 text-sm">{toast}</div>}
 
           <Accordion
             title="Workload"
