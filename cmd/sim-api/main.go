@@ -6,12 +6,14 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
 
+	"simulator/pkg/nsys"
 	"simulator/pkg/schema"
 	"simulator/pkg/sim"
 )
@@ -56,6 +58,9 @@ func main() {
 	r.Get("/v1/runs/{id}", handleGetRun)
 	r.Get("/v1/runs/{id}/trace", handleGetTrace)
 	r.Get("/v1/runs/{id}/breakdown", handleGetBreakdown)
+	r.Post("/v1/realtraces", handleUploadRealTrace)
+	r.Get("/v1/realtraces/{id}/trace", handleGetRealTrace)
+	r.Get("/v1/realtraces/{id}/metrics", handleGetRealMetrics)
 
 	addr := ":8080"
 	if v := os.Getenv("PORT"); v != "" {
@@ -218,4 +223,65 @@ func hashToInt(s string) int64 {
 	h := fnv.New64()
 	_, _ = h.Write([]byte(s))
 	return int64(h.Sum64())
+}
+
+// ---- Real trace handling ----
+func handleUploadRealTrace(w http.ResponseWriter, r *http.Request) {
+	if err := ensureArtifacts(); err != nil {
+		writeError(w, http.StatusInternalServerError, "cannot create artifacts dir")
+		return
+	}
+	r.ParseMultipartForm(32 << 20)
+	file, header, err := r.FormFile("file")
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "file is required")
+		return
+	}
+	defer file.Close()
+	id := newRealTraceID()
+	stored, err := saveRealTraceFile(id, header.Filename, file)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "failed to save file")
+		return
+	}
+	// try parse if sqlite
+	traceBytes := []byte{}
+	metrics := nsys.Metrics{}
+	if strings.HasSuffix(strings.ToLower(header.Filename), ".sqlite") {
+		traceBytes, metrics, err = nsys.ParseSQLite(stored)
+		if err != nil {
+			writeError(w, http.StatusBadRequest, "failed to parse sqlite: "+err.Error())
+			return
+		}
+		mb, _ := json.MarshalIndent(metrics, "", "  ")
+		_, _ = saveMetrics(id, mb)
+		_, _ = saveTraceBytes(id, traceBytes)
+	}
+	writeJSON(w, http.StatusOK, map[string]string{"real_trace_id": id})
+}
+
+func handleGetRealTrace(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	tracePath, _ := realTracePaths(id)
+	data, err := loadFile(tracePath)
+	if err != nil {
+		writeError(w, http.StatusNotFound, "trace not found")
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write(data)
+}
+
+func handleGetRealMetrics(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	_, metricsPath := realTracePaths(id)
+	data, err := loadFile(metricsPath)
+	if err != nil {
+		writeError(w, http.StatusNotFound, "metrics not found")
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write(data)
 }
