@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import Field from './forms/Field'
 import { inputBase, selectBase } from '../styles/formClasses'
 import PipelineEditor from './PipelineEditor'
+import ScenarioWizard from './wizard/ScenarioWizard.tsx'
 
 export const defaultScenario = {
   name: 'Demo Scenario',
@@ -44,6 +45,7 @@ export default function ScenarioPanel({
   collapsed,
   setCollapsed,
 }) {
+  const [wizardOpen, setWizardOpen] = useState(false)
   const [openSections, setOpenSections] = useState({ workload: true, target: true, pipeline: true })
   const [errors, setErrors] = useState('')
 
@@ -112,6 +114,7 @@ export default function ScenarioPanel({
               ))}
             </select>
             <button className="px-3 py-1 rounded bg-slate-800 border border-slate-700" onClick={() => onDelete?.(prompt('Delete which id?') || '')}>Delete</button>
+            <button className="px-3 py-1 rounded bg-slate-800 border border-slate-700" onClick={() => setWizardOpen(true)}>Wizard</button>
           </div>
         )}
       </div>
@@ -184,6 +187,15 @@ export default function ScenarioPanel({
             <div className="text-slate-400">Fixed ms: <span className="text-slate-200">{summary.fixedMs.toFixed(2)} ms</span></div>
             <div className="text-slate-300">Total est: <span className="text-emerald-200 font-semibold">{summary.totalMs.toFixed(2)} ms</span></div>
           </div>
+          {wizardOpen && (
+            <ScenarioWizard
+              open={wizardOpen}
+              onClose={() => setWizardOpen(false)}
+              scenario={scenario}
+              setScenario={setScenario}
+              onRun={onRun}
+            />
+          )}
         </>
       )}
     </div>
