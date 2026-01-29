@@ -123,11 +123,11 @@ export default function ScenarioPanel({
           {toast && <div className="text-emerald-400 text-sm">{toast}</div>}
 
           <Accordion
-            title="Workload"
+            title="WORKLOAD"
             open={openSections.workload}
             onToggle={() => setOpenSections((p) => ({ ...p, workload: !p.workload }))}
           >
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2.5">
               <Field label="Scenario Name"><input className={inputBase} value={scenario.name} onChange={(e) => updateScenario(['name'], e.target.value)} /></Field>
               <Field label="Workload Name"><input className={inputBase} value={scenario.workload.name} onChange={(e) => updateScenario(['workload', 'name'], e.target.value)} /></Field>
               <Field label="RPS" suffix="rps"><input type="number" className={inputBase} value={scenario.workload.rps} onChange={(e) => updateScenario(['workload', 'rps'], parseFloat(e.target.value))} /></Field>
@@ -139,7 +139,7 @@ export default function ScenarioPanel({
           </Accordion>
 
           <Accordion
-            title="Target GPU"
+            title="TARGET GPU"
             open={openSections.target}
             onToggle={() => setOpenSections((p) => ({ ...p, target: !p.target }))}
           >
@@ -153,7 +153,7 @@ export default function ScenarioPanel({
                   <option value="Custom">Custom</option>
                 </select>
               </Field>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2.5">
                 {['tflops', 'mem_gbps', 'h2d_gbps', 'd2h_gbps', 'ms_per_token'].map((k) => (
                   <Field key={k} label={labelFor(k)} tooltip={tooltipFor(k)}>
                     <input
@@ -170,19 +170,19 @@ export default function ScenarioPanel({
           </Accordion>
 
           <Accordion
-            title="Pipeline"
+            title="PIPELINE"
             open={openSections.pipeline}
             onToggle={() => setOpenSections((p) => ({ ...p, pipeline: !p.pipeline }))}
           >
             <PipelineEditor pipeline={scenario.pipeline} setPipeline={setPipeline} />
           </Accordion>
 
-          <div className="bg-slate-900/60 border border-slate-800 rounded p-3 space-y-1 text-sm">
+          <div className="bg-slate-900/50 border border-slate-800/80 rounded-lg p-3 space-y-1 text-sm mt-4">
             <div className="text-slate-200 font-semibold">Scenario Summary</div>
-            <div className="text-slate-300">Compute est: {summary.computeMs.toFixed(2)} ms</div>
-            <div className="text-slate-300">Transfer est: {summary.transferMs.toFixed(2)} ms</div>
-            <div className="text-slate-300">Fixed ms: {summary.fixedMs.toFixed(2)} ms</div>
-            <div className="text-slate-200">Total est: {summary.totalMs.toFixed(2)} ms</div>
+            <div className="text-slate-400">Compute est: <span className="text-slate-200">{summary.computeMs.toFixed(2)} ms</span></div>
+            <div className="text-slate-400">Transfer est: <span className="text-slate-200">{summary.transferMs.toFixed(2)} ms</span></div>
+            <div className="text-slate-400">Fixed ms: <span className="text-slate-200">{summary.fixedMs.toFixed(2)} ms</span></div>
+            <div className="text-slate-300">Total est: <span className="text-emerald-200 font-semibold">{summary.totalMs.toFixed(2)} ms</span></div>
           </div>
         </>
       )}
@@ -193,8 +193,8 @@ export default function ScenarioPanel({
 function Accordion({ title, open, onToggle, children }) {
   return (
     <div className="border border-slate-800 rounded-lg overflow-hidden">
-      <button className="w-full flex items-center justify-between px-3 py-2 bg-slate-900/80 text-slate-200 text-sm" onClick={onToggle}>
-        <span>{title}</span>
+      <button className="w-full flex items-center justify-between px-3 py-2 bg-slate-900/80 text-slate-200 text-xs tracking-[0.08em]" onClick={onToggle}>
+        <span className="font-semibold">{title}</span>
         <span className="text-slate-500">{open ? '−' : '+'}</span>
       </button>
       {open && <div className="p-3 space-y-3">{children}</div>}

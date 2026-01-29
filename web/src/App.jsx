@@ -240,8 +240,23 @@ export default function App() {
             <div className="p-4 space-y-4">
               {activeTab === 'results' && (
                 <div className="space-y-3">
-                  <RunResults scenario={scenario} run={run} loading={loading} error={error} onOpenTimeline={openTimeline} />
-                  <ResultCards summary={run?.summary} runId={run?.id} trace={run?.trace} />
+                  {(!run && !loading) ? (
+                    <div className="flex items-center justify-center min-h-[320px]">
+                      <div className="text-center space-y-3 max-w-md">
+                        <div className="text-lg font-semibold text-slate-100">No results yet</div>
+                        <div className="text-sm text-slate-400">Define a scenario and run a simulation to visualize GPU workload behavior.</div>
+                        <div className="flex items-center justify-center gap-3">
+                          <button className="px-4 py-2 rounded-md bg-emerald-500 text-slate-950 font-semibold" onClick={() => handleRun(scenario)}>Run Simulation</button>
+                          <div className="text-xs text-slate-500">Start with the default scenario</div>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <RunResults scenario={scenario} run={run} loading={loading} error={error} onOpenTimeline={openTimeline} />
+                      <ResultCards summary={run?.summary} runId={run?.id} trace={run?.trace} />
+                    </>
+                  )}
                 </div>
               )}
 
