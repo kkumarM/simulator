@@ -14,6 +14,7 @@ import AboutAurix from './components/AboutAurix'
 import HeaderBar from './components/HeaderBar'
 import Footer from './components/Footer'
 import { computeDiagnosticsFromTrace } from './utils/diagnostics'
+import Sweeps from './components/Sweeps.tsx'
 
 const API = '' // proxied to 8080 via Vite config
 
@@ -57,6 +58,8 @@ export default function App() {
   const [savedList, setSavedList] = useState(loadIndex())
   const runA = runs.find((r) => r.id === compareIds[0])
   const runB = runs.find((r) => r.id === compareIds[1])
+
+  const addRun = (newRun) => setRuns((prev) => [...prev.slice(-9), newRun])
 
   useEffect(() => {
     localStorage.setItem('sim_runs', JSON.stringify(runs.slice(-10)))
@@ -145,7 +148,7 @@ export default function App() {
       const tracePath = data.artifacts?.trace
       const newRun = { id: runId, summary, trace: tracePath, breakdown, scenario: sc }
       setRun(newRun)
-      setRuns((prev) => [...prev.slice(-9), newRun])
+      addRun(newRun)
       setActiveTab('results')
     } catch (err) {
       setError(err.message)
@@ -159,6 +162,13 @@ export default function App() {
   }
 
   const openTimeline = () => setActiveTab('timeline')
+  const openRunById = (id) => {
+    const r = runs.find((x) => x.id === id)
+    if (r) {
+      setRun(r)
+      setActiveTab('timeline')
+    }
+  }
 
   // timeline playback loop
   useEffect(() => {
@@ -246,6 +256,7 @@ export default function App() {
                 { id: 'results', label: 'Results' },
                 { id: 'timeline', label: 'Timeline' },
                 { id: 'compare', label: 'Compare' },
+                { id: 'sweeps', label: 'Sweeps' },
               ]}
               active={activeTab}
               onChange={setActiveTab}
@@ -345,6 +356,16 @@ export default function App() {
 
               {activeTab === 'compare' && (
                 <CompareView runs={runs} compareIds={compareIds} onSelect={handleCompare} backendUrl={API} />
+              )}
+
+              {activeTab === 'sweeps' && (
+                <Sweeps
+                  backendUrl={API}
+                  baseScenario={scenario}
+                  addRun={addRun}
+                  openRun={openRunById}
+                  setActiveTab={setActiveTab}
+                />
               )}
 
               {activeTab === 'docs' && (
