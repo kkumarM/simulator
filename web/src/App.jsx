@@ -12,6 +12,8 @@ import StageAggregates from './components/StageAggregates'
 import { defaultScenario } from './components/ScenarioPanel'
 import { saveScenarioEntry, loadScenario, deleteScenario, loadIndex, loadLastScenario } from './utils/scenarioStore'
 import AboutAurix from './components/AboutAurix'
+import HeaderBar from './components/HeaderBar'
+import Footer from './components/Footer'
 
 const API = '' // proxied to 8080 via Vite config
 
@@ -193,16 +195,10 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
-      <header className="border-b border-slate-800 px-6 py-4 flex items-center justify-between sticky top-0 z-20 bg-slate-950/90 backdrop-blur">
-        <div>
-          <h1 className="text-xl font-semibold">GPU Workload Simulator</h1>
-          <p className="text-slate-400 text-sm">Simulation + timeline + compare + real trace overlay (upload in UI).</p>
-        </div>
-        <div className="text-xs text-slate-500">Backend: http://localhost:8080</div>
-      </header>
+    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
+      <HeaderBar backendUrl={API} onOpenTimeline={openTimeline} hasRun={!!run} activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      <main className="p-4 lg:p-6">
+      <main className="flex-1 p-4 lg:p-6">
         <div className="grid gap-4 lg:grid-cols-[auto,1fr]">
           <section className="bg-slate-900/60 border border-slate-800 rounded-xl p-4 shadow h-fit relative" style={{ width: collapsed ? 56 : panelWidth }}>
             <ScenarioPanel
@@ -231,8 +227,6 @@ export default function App() {
                 { id: 'results', label: 'Results' },
                 { id: 'timeline', label: 'Timeline' },
                 { id: 'compare', label: 'Compare' },
-                { id: 'docs', label: 'Docs' },
-                { id: 'help', label: 'Help' },
               ]}
               active={activeTab}
               onChange={setActiveTab}
@@ -345,6 +339,7 @@ export default function App() {
           </section>
         </div>
       </main>
+      <Footer />
     </div>
   )
 }
