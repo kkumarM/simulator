@@ -235,12 +235,20 @@ export default function App() {
               {activeTab === 'results' && (
                 <div className="space-y-3">
                   {(!run && !loading) ? (
-                    <div className="flex items-center justify-center min-h-[320px]">
-                      <div className="text-center space-y-3 max-w-md">
-                        <div className="text-lg font-semibold text-slate-100">No results yet</div>
-                        <div className="text-sm text-slate-400">Define a scenario and run a simulation to visualize GPU workload behavior.</div>
+                    <div className="flex items-center justify-center min-h-[340px]">
+                      <div className="text-center space-y-4 max-w-md">
+                        <div className="flex items-center justify-center">
+                          <div className="h-14 w-14 rounded-full bg-emerald-500/15 border border-emerald-500/40 flex items-center justify-center">
+                            <svg width="32" height="32" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+                              <path d="M8 46h20M14 34h26M22 22h26" stroke="#34D399" strokeWidth="3" strokeLinecap="round" />
+                              <path d="M12 50c0-12 7-22 18-26s22-1 30 8" stroke="#34D399" strokeWidth="2" strokeLinecap="round" strokeDasharray="5 4" />
+                            </svg>
+                          </div>
+                        </div>
+                        <div className="text-xl font-semibold text-slate-100">No results yet</div>
+                        <div className="text-sm text-slate-400 leading-relaxed">Define a scenario and run a simulation to visualize GPU workload behavior.</div>
                         <div className="flex items-center justify-center gap-3">
-                          <button className="px-4 py-2 rounded-md bg-emerald-500 text-slate-950 font-semibold" onClick={() => handleRun(scenario)}>Run Simulation</button>
+                          <button className="px-5 py-2.5 rounded-md bg-emerald-500 text-slate-950 font-semibold shadow-sm" onClick={() => handleRun(scenario)}>Run Simulation</button>
                           <div className="text-xs text-slate-500">Start with the default scenario</div>
                         </div>
                       </div>

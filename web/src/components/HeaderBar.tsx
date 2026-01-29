@@ -24,7 +24,7 @@ export default function HeaderBar({ backendUrl, onOpenTimeline, hasRun, activeTa
   const badge = status === 'up' ? <Badge tone="success">Connected</Badge> : status === 'down' ? <Badge tone="danger">Disconnected</Badge> : <Badge tone="neutral">Checking…</Badge>
 
   return (
-    <header className="sticky top-0 z-30 bg-slate-950/85 backdrop-blur px-4 lg:px-6 py-3 border-b border-slate-800/70">
+    <header className="sticky top-0 z-30 bg-gradient-to-b from-slate-950/95 via-slate-950/90 to-slate-950/80 backdrop-blur px-4 lg:px-6 py-4 shadow-[0_8px_24px_-18px_rgba(0,0,0,0.6)] border-b border-slate-800/80">
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <AurixMark />

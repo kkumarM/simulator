@@ -93,7 +93,7 @@ export default function ScenarioPanel({
 
 
   return (
-    <div className={`space-y-3 ${collapsed ? 'w-14' : 'w-full'}`}>
+    <div className={`space-y-4 ${collapsed ? 'w-14' : 'w-full'}`}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <button className="text-slate-400" title={collapsed ? 'Expand' : 'Collapse'} onClick={() => setCollapsed((p) => !p)}>
@@ -118,7 +118,7 @@ export default function ScenarioPanel({
 
       {!collapsed && (
         <>
-          <button className="w-full h-11 rounded bg-emerald-500 text-slate-950 font-semibold" onClick={run}>Run Simulation</button>
+          <button className="w-full h-11 rounded bg-emerald-500 text-slate-950 font-semibold shadow-sm" onClick={run}>Run Simulation</button>
           {errors && <div className="text-red-400 text-sm">{errors}</div>}
           {toast && <div className="text-emerald-400 text-sm">{toast}</div>}
 
@@ -127,7 +127,7 @@ export default function ScenarioPanel({
             open={openSections.workload}
             onToggle={() => setOpenSections((p) => ({ ...p, workload: !p.workload }))}
           >
-            <div className="grid grid-cols-2 gap-2.5">
+            <div className="grid grid-cols-2 gap-2">
               <Field label="Scenario Name"><input className={inputBase} value={scenario.name} onChange={(e) => updateScenario(['name'], e.target.value)} /></Field>
               <Field label="Workload Name"><input className={inputBase} value={scenario.workload.name} onChange={(e) => updateScenario(['workload', 'name'], e.target.value)} /></Field>
               <Field label="RPS" suffix="rps"><input type="number" className={inputBase} value={scenario.workload.rps} onChange={(e) => updateScenario(['workload', 'rps'], parseFloat(e.target.value))} /></Field>
@@ -143,7 +143,7 @@ export default function ScenarioPanel({
             open={openSections.target}
             onToggle={() => setOpenSections((p) => ({ ...p, target: !p.target }))}
           >
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               <Field label="Profile">
                 <select className={selectBase} value={scenario.target.name} onChange={(e) => applyProfile(e.target.value)}>
                   <option value="A10G">A10G</option>
@@ -153,7 +153,7 @@ export default function ScenarioPanel({
                   <option value="Custom">Custom</option>
                 </select>
               </Field>
-              <div className="grid grid-cols-2 gap-2.5">
+              <div className="grid grid-cols-2 gap-2">
                 {['tflops', 'mem_gbps', 'h2d_gbps', 'd2h_gbps', 'ms_per_token'].map((k) => (
                   <Field key={k} label={labelFor(k)} tooltip={tooltipFor(k)}>
                     <input
@@ -177,7 +177,7 @@ export default function ScenarioPanel({
             <PipelineEditor pipeline={scenario.pipeline} setPipeline={setPipeline} />
           </Accordion>
 
-          <div className="bg-slate-900/50 border border-slate-800/80 rounded-lg p-3 space-y-1 text-sm mt-4">
+          <div className="bg-slate-900/60 border border-slate-800/80 rounded-lg p-3 space-y-1 text-sm mt-5">
             <div className="text-slate-200 font-semibold">Scenario Summary</div>
             <div className="text-slate-400">Compute est: <span className="text-slate-200">{summary.computeMs.toFixed(2)} ms</span></div>
             <div className="text-slate-400">Transfer est: <span className="text-slate-200">{summary.transferMs.toFixed(2)} ms</span></div>
@@ -192,12 +192,12 @@ export default function ScenarioPanel({
 
 function Accordion({ title, open, onToggle, children }) {
   return (
-    <div className="border border-slate-800 rounded-lg overflow-hidden">
-      <button className="w-full flex items-center justify-between px-3 py-2 bg-slate-900/80 text-slate-200 text-xs tracking-[0.08em]" onClick={onToggle}>
+    <div className="border border-slate-800 rounded-lg overflow-hidden shadow-sm">
+      <button className="w-full flex items-center justify-between px-3 py-2.5 bg-slate-900/80 text-slate-300 text-[11px] tracking-[0.14em] uppercase border-b border-slate-800/80" onClick={onToggle}>
         <span className="font-semibold">{title}</span>
         <span className="text-slate-500">{open ? '−' : '+'}</span>
       </button>
-      {open && <div className="p-3 space-y-3">{children}</div>}
+      {open && <div className="p-3 space-y-2.5">{children}</div>}
     </div>
   )
 }

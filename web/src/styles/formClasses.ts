@@ -11,5 +11,5 @@ export const textareaBase =
   "disabled:bg-slate-900/40 disabled:text-slate-300 disabled:cursor-not-allowed";
 
 export const labelBase = "block text-sm font-medium text-slate-200 mb-1";
-export const helpBase = "text-xs text-slate-400 mt-1";
+export const helpBase = "text-xs text-slate-500 mt-1";
 export const errorBase = "text-xs text-red-400 mt-1";
